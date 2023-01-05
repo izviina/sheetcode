@@ -1,0 +1,37 @@
+function doGet(e) {
+    Logger.log(JSON.stringify(e));
+    var result = 'Ok';
+    if (e.parameter == 'undefined') {
+        result = 'No Parameters';
+    } else {
+        var sheet_id = 'ID'; // ID Таблицы
+        var sheet = SpreadsheetApp.openById(sheet_id).getActiveSheet();
+        var newRow = sheet.getLastRow() + 1;
+        var rowData = [];
+        var Curr_Date = new Date();
+        rowData[2] = Curr_Date; // Дата
+        var Curr_Time = Utilities.formatDate(Curr_Date, "GMT+3", 'HH:mm:ss');
+        rowData[3] = Curr_Time; // Время
+        for (var param in e.parameter) {
+            Logger.log('In for loop, param=' + param);
+            var value = e.parameter[param];
+            Logger.log(param + ':' + e.parameter[param]);
+            switch (param) {
+                case 'group':
+                    rowData[0] = value; // Переменная номера группы
+                    result = 'Номер группы записан в колонну A';
+                    break;
+                case 'mark':
+                    rowData[1] = value; // переменная оценки
+                    result = 'Оценка записанна в колонну B';
+                    break;
+                default:
+                    result = "unsupported parameter";
+            }
+        }
+        Logger.log(JSON.stringify(rowData));
+        var newRange = sheet.getRange(newRow, 1, 1, rowData.length);
+        newRange.setValues([rowData]);
+    }
+    return ContentService.createTextOutput(result);
+}
